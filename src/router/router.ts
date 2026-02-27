@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { AuthController } from "../controllers/auth/auth.controller";
-import { ProductsController } from "../controllers/products/products.controller";
-import { BasketController } from "../controllers/bascket/bascket.controller";
-import { authMiddleware } from "../middleware/auth";
+import { AuthController } from "../controllers/auth/auth.controller.ts";
+import { ProductsController } from "../controllers/products/products.controller.ts";
+import { BasketController } from "../controllers/bascket/bascket.controller.ts";
+import { authMiddleware } from "../middleware/auth.ts";
 
 const router = Router();
 

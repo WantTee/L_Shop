@@ -1,7 +1,11 @@
-import path from "path";
-import { readJSON, writeJSON } from "../../utils/file";
-import { Basket, BasketProduct } from "../../types/bascket";
-import { Product } from "../../types/product";
+import { readJSON, writeJSON } from "../../utils/file.ts";
+import type { Basket, BasketProduct } from "../../types/bascket.ts";
+import type { Product } from "../../types/product.ts";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const BASKET_PATH = path.join(__dirname, "../../../database/basket.json");
 const PRODUCTS_PATH = path.join(__dirname, "../../../database/products.json");

@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { BasketService } from "../../services/bascket/bascket.service";
+import type { Request, Response } from "express";
+import { BasketService } from "../../services/bascket/bascket.service.ts";
 
 export class BasketController {
   static async getBasket(req: Request, res: Response) {
@@ -37,7 +37,7 @@ export class BasketController {
   ? req.params.productId[0]
   : req.params.productId;
 
-const basket = await BasketService.removeProduct(req.userId!, productId);
+const basket = await BasketService.removeProduct(req.userId!, productId as string);
 
       res.json(basket);
     } catch (e: any) {

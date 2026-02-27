@@ -1,6 +1,10 @@
-import { readJSON, writeJSON } from "../../utils/file";
-import { User } from "../../types/user";
-import path from "path";
+import { readJSON, writeJSON } from "../../utils/file.ts";
+import type { User } from "../../types/user.ts";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const USERS_PATH = path.join(__dirname, "../../../database/users.json");
 
