@@ -1,5 +1,7 @@
-declare namespace Express {
-  export interface Request {
+import "express";
+
+declare module "express-serve-static-core" {
+  interface Request {
     userId?: string | number;
   }
 }

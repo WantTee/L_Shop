@@ -1,12 +1,8 @@
-import { readJSON } from "../../utils/file.ts";
-import type { Product } from "../../types/product.ts";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
+import { readJSON } from "../../utils/file";
+import type { Product } from "../../types/product";
+import path from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const PRODUCTS_PATH = path.join(__dirname, "../../../database/products.json");
+const PRODUCTS_PATH = path.join(process.cwd(), "database", "products.json");
 
 export class ProductsService {
   static async getProducts(query: any): Promise<Product[]> {

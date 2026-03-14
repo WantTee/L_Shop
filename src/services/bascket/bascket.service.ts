@@ -1,36 +1,45 @@
-import { readJSON, writeJSON } from "../../utils/file.ts";
-import type { Basket, BasketProduct } from "../../types/bascket.ts";
-import type { Product } from "../../types/product.ts";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
+import { readJSON, writeJSON } from "../../utils/file";
+import type { Basket } from "../../types/bascket";
+import type { Product } from "../../types/product";
+import path from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const BASKET_PATH = path.join(__dirname, "../../../database/basket.json");
-const PRODUCTS_PATH = path.join(__dirname, "../../../database/products.json");
+const BASKET_PATH = path.join(process.cwd(), "database", "basket.json");
+const PRODUCTS_PATH = path.join(process.cwd(), "database", "products.json");
 
 export class BasketService {
+  private static withTotals(basket: Basket): Basket {
+    const totalPrice = basket.basket.reduce((sum, item) => {
+      const price = item?.product?.price ?? 0;
+      return sum + price * item.count;
+    }, 0);
+
+    return { ...basket, totalPrice };
+  }
+
   static async getUserBasket(userId: string | number): Promise<Basket> {
     const baskets = await readJSON<Basket[]>(BASKET_PATH);
 
     let basket = baskets.find(b => b.userId == userId);
 
     if (!basket) {
-      basket = { id: Date.now(), userId, basket: [] };
+      // корзина "принадлежит" пользователю и имеет тот же id
+      basket = { id: userId, userId, basket: [] };
       baskets.push(basket);
       await writeJSON(BASKET_PATH, baskets);
     }
 
-    return basket;
+    return this.withTotals(basket);
   }
 
   static async addProduct(userId: string | number, productId: string | number, count: number) {
     const baskets = await readJSON<Basket[]>(BASKET_PATH);
     const products = await readJSON<Product[]>(PRODUCTS_PATH);
 
-    const basket = baskets.find(b => b.userId == userId);
-    if (!basket) throw new Error("Basket not found");
+    let basket = baskets.find(b => b.userId == userId);
+    if (!basket) {
+      basket = { id: userId, userId, basket: [] };
+      baskets.push(basket);
+    }
 
     const product = products.find(p => p.id == productId);
     if (!product) throw new Error("Product not found");
@@ -40,14 +49,11 @@ export class BasketService {
     if (existing) {
       existing.count += count;
     } else {
-      basket.basket.push({
-        count,
-        product
-      });
+      basket.basket.push({ id: Date.now(), count, product });
     }
 
     await writeJSON(BASKET_PATH, baskets);
-    return basket;
+    return this.withTotals(basket);
   }
 
   static async updateCount(userId: string | number, productId: string | number, count: number) {
@@ -62,7 +68,7 @@ export class BasketService {
     item.count = count;
 
     await writeJSON(BASKET_PATH, baskets);
-    return basket;
+    return this.withTotals(basket);
   }
 
   static async removeProduct(userId: string | number, productId: string | number) {
@@ -74,6 +80,18 @@ export class BasketService {
     basket.basket = basket.basket.filter(i => i.product.id != productId);
 
     await writeJSON(BASKET_PATH, baskets);
-    return basket;
+    return this.withTotals(basket);
+  }
+
+  static async clearBasket(userId: string | number) {
+    const baskets = await readJSON<Basket[]>(BASKET_PATH);
+
+    const basket = baskets.find(b => b.userId == userId);
+    if (!basket) throw new Error("Basket not found");
+
+    basket.basket = [];
+
+    await writeJSON(BASKET_PATH, baskets);
+    return this.withTotals(basket);
   }
 }

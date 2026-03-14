@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { AuthService } from "../../services/auth/auth.service.ts";
+import { AuthService } from "../../services/auth/auth.service";
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -27,6 +27,37 @@ export class AuthController {
       });
 
       res.json({ message: "Logged in", user });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  }
+
+  static async sendCode(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      await AuthService.sendCode(email);
+      res.json({ message: "Код отправлен" });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  }
+
+  static async verifyCode(req: Request, res: Response) {
+    try {
+      const { email, code } = req.body;
+      const success = await AuthService.verifyCode(email, code);
+      if (!success) {
+        return res.json({ success: false });
+      }
+
+      const user = await AuthService.findOrCreateByEmail(email);
+
+      res.cookie("session", user.id, {
+        httpOnly: true,
+        maxAge: 10 * 60 * 1000
+      });
+
+      res.json({ success: true, user });
     } catch (e: any) {
       res.status(400).json({ error: e.message });
     }
