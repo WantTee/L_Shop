@@ -1,3 +1,4 @@
+
 // ----------------------- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ -----------------------
 const loader = document.getElementById("loader") as HTMLDivElement | null;
 const btn = document.getElementById("presidentBtn") as HTMLButtonElement | null;
@@ -38,65 +39,57 @@ function renderLoginPage() {
                         <div class="form-group">
                             <input type="email" id="email" value="Email" required>
                         </div>
-                        <button type="submit" class="submit-btn">SEND THE CODE</button>
+                        <button type="button" id="sendCode" class="submit-btn">SEND THE CODE</button>
                     </form>
                     <div class="auth-links">
                         <a data-link href="/disclaimer" class="link-incognito">go incognito ></a>
-                        <a data-link href="/registration" class="link-signin">Sign in ></a>
                     </div>
                 </div>
             </div>
         </div>
     `;
 
-    const email = document.getElementById("email") as HTMLInputElement;
-    email.addEventListener("focus", () => email.value === "Email" && (email.value = ""));
-    email.addEventListener("blur", () => email.value === "" && (email.value = "Email"));
+    const emailInput = document.getElementById("email") as HTMLInputElement;
+const sendCodeBtn = document.getElementById("sendCode");
 
-    document.getElementById("loginForm")?.addEventListener("submit", e => {
-        e.preventDefault();
-        navigate("/code");
+sendCodeBtn?.addEventListener("click", async () => {
+  if (!emailInput) return;
+
+  const email = emailInput.value.trim();
+  if (!email || email === "Email") {
+    alert("Введите email");
+    return;
+  }
+
+  localStorage.setItem("auth_email", email);
+
+  try {
+    const res = await fetch("http://localhost:3000/auth/sendCode", {
+      credentials: "include",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
     });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      navigate("/code");
+      alert("Код отправлен на почту");
+    } else {
+      alert(data.error || "Ошибка при отправке кода");
+    }
+  } catch (e) {
+    alert("Не удалось связаться с сервером");
+  }
+});
+
+    emailInput.addEventListener("focus", () => emailInput.value === "Email" && (emailInput.value = ""));
+    emailInput.addEventListener("blur", () => emailInput.value === "" && (emailInput.value = "Email"));
 }
-
-// Регистрация
-function renderRegistrationPage() {
-    if (!app) return;
-
-    app.innerHTML = `
-        <div class="split-layout fade-in">
-            <div class="left-panel">
-                <div class="vertical-text">PRESIDENT</div>
-            </div>
-            <div class="right-panel">
-                <div class="login-form-container">
-                    <h1>Sign In</h1>
-                    <form id="registrationForm" class="auth-form" data-registration>
-                        <div class="form-group">
-                            <input type="email" id="email" value="Email" required>
-                        </div>
-                        <button type="submit" class="submit-btn">SEND THE CODE</button>
-                    </form>
-                    <div class="auth-links">
-                        <a data-link href="/login" class="link-signin">Log in ></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    const email = document.getElementById("email") as HTMLInputElement;
-    email.addEventListener("focus", () => email.value === "Email" && (email.value = ""));
-    email.addEventListener("blur", () => email.value === "" && (email.value = "Email"));
-
-    document.getElementById("registrationForm")?.addEventListener("submit", e => {
-        e.preventDefault();
-        navigate("/code");
-    });
-}
-
 // Ввод кода
 function renderCodePage(email: string = "user@example.com") {
+    const storedEmail = localStorage.getItem("auth_email") || email;
     if (!app) return;
 
     app.innerHTML = `
@@ -107,12 +100,12 @@ function renderCodePage(email: string = "user@example.com") {
             <div class="right-panel">
                 <div class="login-form-container">
                     <h1 class="code-title">Enter the code</h1>
-                    <p class="code-email">Code sent to: ${email}</p>
+                    <p class="code-email">Code sent to: ${storedEmail}</p>
                     <form id="codeForm" class="auth-form">
                         <div class="code-inputs">
                             ${"<input type='text' maxlength='1' class='code-box'>".repeat(6)}
                         </div>
-                        <button type="submit" class="submit-btn">ENTER</button>
+                        <button type="submit" id="verifyCode" class="submit-btn">ENTER</button>
                     </form>
                     <div class="auth-links">
                         <a data-link href="/disclaimer" class="link-incognito">go incognito ></a>
@@ -128,38 +121,90 @@ function renderCodePage(email: string = "user@example.com") {
         </div>
     `;
 
-    const inputs = document.querySelectorAll(".code-box") as NodeListOf<HTMLInputElement>;
-    inputs.forEach((input, index) => {
-        input.addEventListener("input", () => {
-            if (input.value.length === 1 && index < inputs.length - 1) {
-                inputs[index + 1].focus();
-            }
-        });
-    });
+    const codeForm = document.getElementById("codeForm") as HTMLFormElement | null;
+const inputs = Array.from(document.querySelectorAll<HTMLInputElement>(".code-box"));
+const modal = document.getElementById("modal")!;
+const message = document.getElementById("modal-message")!;
+const buttons = document.getElementById("modal-buttons")!;
+inputs.forEach((input, index) => {
+  input.addEventListener("input", () => {
+    if (input.value.length === 1 && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+    }
+  }); 
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Backspace" && input.value === "" && index > 0) {
+      inputs[index - 1].focus();
+    }
+  });
+});
 
-    document.getElementById("codeForm")?.addEventListener("submit", e => {
-        e.preventDefault();
-        const code = Array.from(inputs).map(i => i.value).join("");
-        const modal = document.getElementById("modal")!;
-        const message = document.getElementById("modal-message")!;
-        const buttons = document.getElementById("modal-buttons")!;
 
-        modal.classList.remove("hidden");
+if (codeForm && inputs.length > 0) {
+  codeForm.addEventListener("submit", async e => {
+    e.preventDefault();
 
-        if (code === "000000") {
-            message.textContent = "successfully";
-            buttons.innerHTML = `<button id="continueBtn" class="submit-btn">CONTINUE</button>`;
-            document.getElementById("continueBtn")?.addEventListener("click", () => navigate("/disclaimer"));
-        } else {
-            message.textContent = "Invalid code";
-            buttons.innerHTML = `<button id="closeBtn" class="submit-btn">Close</button>`;
-            document.getElementById("closeBtn")?.addEventListener("click", () => {
-                modal.classList.add("hidden");
-                inputs.forEach(input => input.value = "");
-                inputs[0].focus();
-            });
+    const code = inputs.map(i => i.value).join("");
+    const email = localStorage.getItem("auth_email");
+
+    if (!email) {
+      message.textContent = "Email not found. Try logging in again.";
+      buttons.innerHTML = `<button id="closeBtn" class="submit-btn">Close</button>`;
+      modal.classList.remove("hidden");
+      document.getElementById("closeBtn")?.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+      return;
+    }
+
+    modal.classList.remove("hidden");
+    message.textContent = "Checking the code...";
+
+    try {
+      const res = await fetch("http://localhost:3000/auth/verify-code", {
+        credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // помечаем пользователя как авторизованного
+        if (data.user?.id != null) {
+          localStorage.setItem("userToken", String(data.user.id));
         }
-    });
+
+        message.textContent = "successfully";
+        buttons.innerHTML = `<button id="continueBtn" class="submit-btn">CONTINUE</button>`;
+        document.getElementById("continueBtn")?.addEventListener("click", () => {
+          navigate("/disclaimer");
+        });
+      } else {
+        message.textContent = "Invalid code";
+        buttons.innerHTML = `<button id="closeBtn" class="submit-btn">Close</button>`;
+        document.getElementById("closeBtn")?.addEventListener("click", () => {
+          modal.classList.add("hidden");
+          inputs.forEach(input => input.value = "");
+          inputs[0].focus();
+        });
+      }
+    } catch (e) {
+      message.textContent = "Server connection error";
+      buttons.innerHTML = `<button id="closeBtn" class="submit-btn">Close</button>`;
+      document.getElementById("closeBtn")?.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+    }
+  });
+}
+
+
+
+
+
+    
 }
 
 // Дисклеймер
@@ -323,10 +368,16 @@ function renderHomePage() {
     }
 
     // Рендер результатов поиска
-    function renderSearchResults(results: string[]) {
+    function renderSearchResults(results: { title: string; price: number }[]) {
         const resultsBlock = document.querySelector(".search-results") as HTMLDivElement;
         if (!resultsBlock) return;
-        resultsBlock.innerHTML = results.map(r => `<p>${r}</p>`).join("");
+        if (!results.length) {
+            resultsBlock.innerHTML = "<p>No products found</p>";
+            return;
+        }
+        resultsBlock.innerHTML = results
+          .map(r => `<p>${r.title} — $${r.price}</p>`)
+          .join("");
     }
 
     // Рендер предложений поиска
@@ -350,9 +401,34 @@ function renderHomePage() {
         if (searchInput.value === "") searchInput.value = "What are you looking for";
     });
 
+    searchInput.addEventListener("input", async () => {
+        const query = searchInput.value.trim();
+        if (!query) {
+            renderSearchResults([]);
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:3000/products?q=${encodeURIComponent(query)}`);
+            const products = await res.json();
+            renderSearchResults(products);
+        } catch {
+            renderSearchResults([]);
+        }
+    });
+
     // Логика корзины
     const cartIcon = document.querySelector(".cart-icon");
-    cartIcon?.addEventListener("click", () => navigate("/cart"));
+    cartIcon?.addEventListener("click", () => {
+        if (!localStorage.getItem("userToken")) {
+            const goLogin = confirm("Only authorized users can view the cart. Do you want to log in?");
+            if (goLogin) {
+                navigate("/login");
+            }
+            return;
+        }
+        navigate("/cart");
+    });
 
     // Логика модалки поиска
     function setupSearchIcon() {
@@ -458,6 +534,42 @@ function renderHomePage() {
     setupHeaderScroll();
 }
 
+
+
+//--УВЕДОМЛЕНИЯ-----------
+function showNotification(message: string, withRegisterBtn = false) {
+  const notify = document.createElement("div");
+  notify.className = "notify";
+  notify.textContent = message;
+
+  if (withRegisterBtn) {
+    const btn = document.createElement("button");
+    btn.style.background = "transparent";
+    btn.style.color = "#fff";
+    btn.style.border = "none";
+    btn.style.marginLeft = "10px";
+    btn.style.cursor = "pointer";
+    btn.addEventListener("click", () => {
+      notify.remove();
+      navigate("/registration");
+    });
+    notify.appendChild(btn);
+  }
+
+  document.body.appendChild(notify);
+
+  // плавное появление
+  setTimeout(() => notify.classList.add("show"), 50);
+
+  // исчезает через 2 сек
+  setTimeout(() => {
+    notify.classList.remove("show");
+    setTimeout(() => notify.remove(), 400);
+  }, 2000);
+}
+
+
+
 // Каталог
 function renderCatalogPage() {
     if (!app) return;
@@ -477,89 +589,12 @@ function renderCatalogPage() {
                     </div>
                 </div>
                 <nav class="header-nav-2">
-                    <a href="/catalog?category=president">PRESIDENT</a>
-                    <a href="/catalog?category=dakimakura">DAKIMAKURA</a>
-                    <a href="/catalog?category=merch">MERCH</a>
+                    <a href="/catalog?category=president" data-category="president">PRESIDENT</a>
+                    <a href="/catalog?category=dakimakura" data-category="dakimakura">DAKIMAKURA</a>
+                    <a href="/catalog?category=merch" data-category="merch">MERCH</a>
                 </nav>
             </header>
-            <div class="catalog-grid">
-                <!-- ряд 1 -->
-                <div class="row">
-                    <div class="half small-cards">
-                    <div class="product-card small">
-                        <img src="/products/beautifyl.jpg" alt="Item 1">
-                        <div class="info">
-                        <h3 class="product-title">Product Name</h3>
-                        <p class="product-price">$199</p>
-                        <button class="cart-btn">
-                        <img src="/icons/my-cart.png" alt="Cart">
-                        </button>
-                        </div>
-                    </div>
-                    <div class="product-card small">
-                        <img src="/products/obama.jpg" alt="Item 2">
-                        <div class="info">
-                        <h3 class="product-title">Product Name</h3>
-                        <p class="product-price">$199</p>
-                        <button class="cart-btn">
-                        <img src="/icons/my-cart.png" alt="Cart">
-                        </button>
-                        </div>
-                    </div>
-                    </div>
-                    <div class="half">
-                    <div class="product-card large">
-                        <img src="/products/trump.jpg" alt="Item 3">
-                        <div class="info">
-                        <h3 class="product-title">Product Name</h3>
-                        <p class="product-price">$199</p>
-                        <button class="cart-btn">
-                        <img src="/icons/my-cart.png" alt="Cart">
-                        </button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-
-                <!-- ряд 2 (зеркально) -->
-                <div class="row reverse">
-                    <div class="half">
-                    <div class="product-card large">
-                        <img src="/products/beautifyl.jpg" alt="Item 4">
-                        <div class="info">
-                       <h3 class="product-title">Product Name</h3>
-                        <p class="product-price">$199</p>
-                        <button class="cart-btn">
-                        <img src="/icons/my-cart.png" alt="Cart">
-                        </button>
-
-                        </div>
-                    </div>
-                    </div>
-                    <div class="half small-cards">
-                    <div class="product-card small">
-                        <img src="/products/obama.jpg" alt="Item 5">
-                        <div class="info">
-                        <h3 class="product-title">Product Name</h3>
-                        <p class="product-price">$199</p>
-                        <button class="cart-btn">
-                        <img src="/icons/my-cart.png" alt="Cart">
-                        </button>
-                        </div>
-                    </div>
-                    <div class="product-card small">
-                        <img src="/products/trump.jpg" alt="Item 6">
-                        <div class="info">
-                        <h3 class="product-title">Product Name</h3>
-                        <p class="product-price">$199</p>
-                        <button class="cart-btn">
-                        <img src="/icons/my-cart.png" alt="Cart">
-                        </button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div>
+            <div class="catalog-grid" id="catalogGrid"></div>
         </div>
 
         <!-- Модальное окно поиска -->
@@ -654,7 +689,142 @@ function renderCatalogPage() {
         </div>
     `;
     const cartIcon = document.querySelector(".cart-icon");
-    cartIcon?.addEventListener("click", () => navigate("/cart"));
+    cartIcon?.addEventListener("click", () => {
+        if (!localStorage.getItem("userToken")) {
+            const goLogin = confirm("Only authorized users can view the cart. Do you want to log in?");
+            if (goLogin) {
+                navigate("/login");
+            }
+            return;
+        }
+        navigate("/cart");
+    });
+
+    const grid = document.getElementById("catalogGrid") as HTMLDivElement | null;
+
+    // Текущее состояние фильтров/поиска
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentCategory: string | undefined = urlParams.get("category") || undefined;
+    let currentSearch = "";
+    let currentPriceFrom: number | null = null;
+    let currentPriceTo: number | null = null;
+
+    let baseProducts: any[] = [];
+
+    function applyClientFilters(products: any[]): any[] {
+        let filtered = [...products];
+
+        if (currentPriceFrom !== null) {
+            filtered = filtered.filter(p => typeof p.price === "number" && p.price >= currentPriceFrom!);
+        }
+        if (currentPriceTo !== null) {
+            filtered = filtered.filter(p => typeof p.price === "number" && p.price <= currentPriceTo!);
+        }
+
+        return filtered;
+    }
+
+    function renderProductsToGrid(products: any[]) {
+    if (!grid) return;
+
+    if (!products.length) {
+        grid.innerHTML = "<p>No products found</p>";
+        return;
+    }
+
+    grid.innerHTML = products
+      .map((p: any, index: number) => {
+        // Определяем размер карточки по позиции
+        const isLarge = (Math.floor(index / 3) % 2 === 0 && index % 3 === 2) ||
+                        (Math.floor(index / 3) % 2 === 1 && index % 3 === 0);
+        const sizeClass = isLarge ? "large" : "small";
+
+        return `
+          <div class="product-card ${sizeClass}">
+            <img src="${p.images?.preview ?? ""}" alt="${p.title}">
+            <div class="info">
+              <h3 class="product-title" data-title="basket">${p.title}</h3>
+              <div class="price-row">
+                <p class="product-price" data-price="basket">$${p.price}</p>
+                <button class="cart-btn" data-product-id="${p.id}">
+                  <img src="/icons/my-cart.png" alt="Cart">
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    // Логика добавления в корзину остаётся
+// Универсальная функция уведомления
+
+// Логика добавления в корзину
+grid.querySelectorAll<HTMLButtonElement>(".cart-btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const productId = btn.getAttribute("data-product-id");
+    if (!productId) return;
+
+    if (!localStorage.getItem("userToken")) {
+      showNotification("You are not registered", true);
+      return;
+    }
+
+    try {
+      await fetch("http://localhost:3000/basket/add", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, count: 1 })
+      });
+      showNotification("Product added to cart");
+    } catch {
+      showNotification("Product addition error");
+    }
+  });
+});
+
+
+}
+
+
+    async function loadProducts() {
+        if (!grid) return;
+
+        const params = new URLSearchParams();
+        if (currentCategory) params.set("category", currentCategory);
+        if (currentSearch.trim()) params.set("q", currentSearch.trim());
+
+        const url = `http://localhost:3000/products${params.toString() ? `?${params.toString()}` : ""}`;
+
+        try {
+            const res = await fetch(url);
+            const products = await res.json();
+            baseProducts = Array.isArray(products) ? products : [];
+            const filtered = applyClientFilters(baseProducts);
+            renderProductsToGrid(filtered);
+        } catch {
+            grid.innerHTML = "<p>Error loading products</p>";
+        }
+    }
+
+    // начальный рендер
+    loadProducts();
+
+    // переключение категории в шапке
+    document.querySelectorAll<HTMLAnchorElement>(".header-nav-2 a[data-category]").forEach(link => {
+        link.addEventListener("click", e => {
+            e.preventDefault();
+            const cat = link.dataset.category;
+            if (cat) {
+                currentCategory = cat;
+                const url = new URL(window.location.href);
+                url.searchParams.set("category", cat);
+                window.history.pushState({}, "", url.toString());
+                loadProducts();
+            }
+        });
+    });
 
     setupAccountIcon();
 
@@ -782,14 +952,47 @@ function renderCatalogPage() {
             document.body.classList.remove("no-scroll");
         });
 
+        // выбор категорий и доставки (визуально) + фильтр по цене
         document.querySelectorAll(".filter-options").forEach(group => {
-            group.querySelectorAll(".filter-btn").forEach(btn => {
+            group.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach(btn => {
                 btn.addEventListener("click", () => {
                     group.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
                     btn.classList.add("active");
+
+                    // категории из модалки
+                    if (group.classList.contains("category-options")) {
+                        const text = btn.textContent?.trim().toLowerCase();
+                        if (text === "president" || text === "dakimakura" || text === "merch") {
+                            currentCategory = text;
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("category", currentCategory);
+                            window.history.pushState({}, "", url.toString());
+                            loadProducts();
+                        }
+                    }
                 });
             });
         });
+
+        // инпуты цены
+        const priceInputs = filterModal.querySelectorAll<HTMLInputElement>(".price-inputs .filter-input");
+        const fromInput = priceInputs[0];
+        const toInput = priceInputs[1];
+
+        const handlePriceChange = () => {
+            const fromVal = fromInput?.value ? Number(fromInput.value) : NaN;
+            const toVal = toInput?.value ? Number(toInput.value) : NaN;
+
+            currentPriceFrom = isNaN(fromVal) ? null : fromVal;
+            currentPriceTo = isNaN(toVal) ? null : toVal;
+
+            const filtered = applyClientFilters(baseProducts);
+            renderProductsToGrid(filtered);
+        };
+
+        fromInput?.addEventListener("input", handlePriceChange);
+        toInput?.addEventListener("input", handlePriceChange);
+
         setupModalIcons(filterModal);
 
     }
@@ -828,19 +1031,293 @@ function renderCatalogPage() {
     }
     setupSearchIcon();
     setupFilterModal();
+
+    // поиск в модалке каталога
+    const searchInput = document.getElementById("searchInput") as HTMLInputElement | null;
+    const searchResultsBlock = document.querySelector(".search-results") as HTMLDivElement | null;
+    const searchModal = document.getElementById("searchModal");
+
+    function renderNameSuggestions(query: string) {
+        if (!searchResultsBlock) return;
+        const q = query.trim().toLowerCase();
+        if (!q) {
+            searchResultsBlock.innerHTML = "";
+            return;
+        }
+
+        const productsForView = applyClientFilters(baseProducts);
+        const matched = productsForView.filter(p =>
+            typeof p.title === "string" && p.title.toLowerCase().includes(q)
+        );
+
+        if (!matched.length) {
+            searchResultsBlock.innerHTML = "<p>No products found</p>";
+            return;
+        }
+
+        searchResultsBlock.innerHTML = `
+            <ul class="search-results-list">
+                ${matched
+                    .map(
+                        (p: any) =>
+                            `<li class="search-result-item" data-product-id="${p.id}">${p.title}</li>`
+                    )
+                    .join("")}
+            </ul>
+        `;
+
+        // клик по названию товара — закрываем модалку и скроллим к карточке
+        searchResultsBlock
+            .querySelectorAll<HTMLLIElement>(".search-result-item")
+            .forEach(item => {
+                item.addEventListener("click", () => {
+                    const productId = item.getAttribute("data-product-id");
+                    if (!productId || !grid) return;
+
+                    // закрываем модалку
+                    if (searchModal) {
+                        searchModal.classList.remove("open");
+                        searchModal.classList.add("hidden");
+                    }
+                    document.body.classList.remove("no-scroll");
+                    document.documentElement.classList.remove("no-scroll");
+
+                    // скроллим до нужной карточки
+                    const btn = grid.querySelector<HTMLButtonElement>(
+                        `.cart-btn[data-product-id="${productId}"]`
+                    );
+                    const card = btn?.closest<HTMLElement>(".product-card");
+                    card?.scrollIntoView({ behavior: "smooth", block: "center" });
+                });
+            });
+    }
+
+    if (searchInput) {
+        // динамические подсказки по названиям при вводе
+        searchInput.addEventListener("input", () => {
+            renderNameSuggestions(searchInput.value);
+        });
+
+        // сам поиск — только по Enter
+        searchInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                currentSearch = searchInput.value.trim();
+                loadProducts();
+
+                // закрываем модальное окно
+                if (searchModal) {
+                    searchModal.classList.remove("open");
+                    searchModal.classList.add("hidden");
+                }
+                document.body.classList.remove("no-scroll");
+                document.documentElement.classList.remove("no-scroll");
+            }
+        });
+    }
 }
 
 // Корзина
 function renderCartPage() {
-    if (!app) return;
+  if (!app) return;
 
-    app.innerHTML = `
-        <div class="cart-page fade-in">
-            <h1>Your Cart</h1>
-            <p>So far, the cart is empty.</p>
+  if (!localStorage.getItem("userToken")) {
+    showNotification("Вы не зарегистрированы", true);
+    return;
+  }
+
+  app.innerHTML = `
+    <div class="cart-page fade-in">
+      <header class="catalog-header">
+        <div class="header-top">
+          <div class="header-logo">
+            <img src="/logo-black.png" alt="Shop Logo" class="logo" id="homeBtn">
+          </div>
+          <div class="header-icons">
+            <img src="/icons/search-black.png" alt="Search" class="icon search-icon">
+            <img src="/icons/account-black.png" alt="Account" class="icon account-icon">
+          </div>
         </div>
-    `;
+        <nav class="header-nav-2">
+          <a href="/catalog?category=president">PRESIDENT</a>
+          <a href="/catalog?category=dakimakura">DAKIMAKURA</a>
+          <a href="/catalog?category=merch">MERCH</a>
+        </nav>
+      </header>
+
+      <div class="cart-container">
+        <!-- Блок товаров -->
+        <div class="cart-items">
+          <div class="cart-header">
+            <h2 class="cart-title">PRODUCTS</h2>
+            <div class="cart-subrow">
+              <span class="cart-label">total products</span>
+              <span class="cart-count" id="productsCount">0</span>
+              <span class="cart-link" id="removeAllBtn">remove all</span>
+            </div>
+          </div>
+          <div class="cart-divider"></div>
+          <div class="cart-list" id="cartList"><p>Loading...</p></div>
+        </div>
+
+        <!-- Блок суммы -->
+        <div class="cart-summary">
+          <h2 class="summary-title">TOTAL</h2>
+          <div class="summary-row">
+            <span class="summary-label">products</span>
+            <span class="summary-count" id="summaryCount">0 pcs</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">total amount</span>
+            <span class="summary-amount" id="summaryAmount">0 $</span>
+          </div>
+          <button class="order-btn" id="orderBtn">ORDER</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const cartList = document.getElementById("cartList") as HTMLDivElement;
+  const summaryCount = document.getElementById("summaryCount")!;
+  const summaryAmount = document.getElementById("summaryAmount")!;
+  const productsCount = document.getElementById("productsCount")!;
+  const orderBtn = document.getElementById("orderBtn")!;
+  const removeAllBtn = document.getElementById("removeAllBtn");
+
+  async function loadCart() {
+    if (!cartList) return;
+
+    try {
+      const res = await fetch("http://localhost:3000/basket", { credentials: "include" });
+      const data = await res.json();
+
+      if (!res.ok) {
+        cartList.innerHTML = `<p>${data?.error || "Failed to load basket"}</p>`;
+        return;
+      }
+
+      const items = Array.isArray(data?.basket) ? data.basket : [];
+      const total = typeof data?.totalPrice === "number"
+        ? data.totalPrice
+        : items.reduce((sum: number, i: any) => sum + (i?.product?.price ?? 0) * (i?.count ?? 0), 0);
+
+      if (!items.length) {
+        cartList.innerHTML = "<p>So far, the cart is empty.</p>";
+        summaryCount.textContent = "0 pcs";
+        summaryAmount.textContent = "0 $";
+        productsCount.textContent = "0";
+        if (removeAllBtn) removeAllBtn.style.display = "none";
+        return;
+      }
+
+      if (removeAllBtn) removeAllBtn.style.display = "";
+
+      cartList.innerHTML = items.map((i: any) => `
+  <div class="cart-item" data-product-id="${i.product?.id ?? ""}">
+    <div class="cart-left">
+      <img src="${i.product?.images?.preview ?? ""}" alt="${i.product?.title ?? ""}" class="cart-img">
+    </div>
+    <div class="cart-right">
+      <div class="cart-top">
+        <h3 class="cart-title">${i.product?.title ?? ""}</h3>
+        <span class="cart-price">$${((i.product?.price ?? 0) * (i.count ?? 0)).toFixed(2)}</span>
+      </div>
+      <p class="cart-category">Category: ${i.product?.categories?.[0] ?? ""}</p>
+      <div class="cart-bottom">
+        <div class="cart-counter">
+          <button class="minus-btn">-</button>
+          <span class="count">${i.count}</span>
+          <button class="plus-btn">+</button>
+        </div>
+        <span class="cart-link cart-remove" data-product-id="${i.product?.id ?? ""}">remove</span>
+      </div>
+    </div>
+  </div>
+`).join("");
+// Навешиваем обработчики на каждую карточку
+cartList.querySelectorAll(".cart-item").forEach((el, index) => {
+  const minusBtn = el.querySelector(".minus-btn") as HTMLButtonElement;
+  const plusBtn = el.querySelector(".plus-btn") as HTMLButtonElement;
+  const countSpan = el.querySelector(".count") as HTMLSpanElement;
+  const priceDiv = el.querySelector(".cart-price") as HTMLSpanElement;
+
+  let count = items[index].count;
+  const price = items[index].product?.price ?? 0;
+
+  function update() {
+    countSpan.textContent = String(count);
+    priceDiv.textContent = `$${(price * count).toFixed(2)}`;
+    // пересчёт TOTAL
+    const totalCount = Array.from(cartList.querySelectorAll(".count"))
+      .reduce((sum, span) => sum + parseInt(span.textContent || "0"), 0);
+    const totalAmount = Array.from(cartList.querySelectorAll(".cart-price"))
+      .reduce((sum, div) => sum + parseFloat(div.textContent?.replace("$", "") || "0"), 0);
+
+    summaryCount.textContent = `${totalCount} pcs`;
+    summaryAmount.textContent = `${totalAmount.toFixed(2)} $`;
+  }
+
+  minusBtn.addEventListener("click", () => {
+    if (count > 1) {
+      count--;
+      update();
+    }
+  });
+
+  plusBtn.addEventListener("click", () => {
+    count++;
+    update();
+  });
+});
+
+
+      // Обновляем данные в блоке суммы
+      const totalCount = items.reduce((sum: number, i: any) => sum + (i?.count ?? 0), 0);
+      summaryCount.textContent = `${totalCount} pcs`;
+      summaryAmount.textContent = `${total.toFixed(2)} $`;
+      productsCount.textContent = String(items.length);
+
+    } catch {
+      cartList.innerHTML = "<p>Failed to load basket</p>";
+    }
+  }
+
+  loadCart();
+
+  orderBtn.addEventListener("click", () => {
+    showNotification("successfully");
+  });
+
+  removeAllBtn?.addEventListener("click", async () => {
+    try {
+      const res = await fetch("http://localhost:3000/basket/clear", {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (res.ok) loadCart();
+    } catch {
+      showNotification("Failed to clear cart", true);
+    }
+  });
+
+  cartList.addEventListener("click", async (e) => {
+    const removeEl = (e.target as HTMLElement).closest(".cart-remove");
+    if (!removeEl) return;
+    const productId = removeEl.getAttribute("data-product-id");
+    if (!productId) return;
+    try {
+      const res = await fetch(`http://localhost:3000/basket/remove/${productId}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (res.ok) loadCart();
+    } catch {
+      showNotification("Failed to remove item", true);
+    }
+  });
 }
+
+
 
 // ----------------------- РОУТЕР -----------------------
 function router() {
@@ -867,11 +1344,19 @@ function router() {
     }
 
     if (path === "/login") return renderLoginPage();
-    if (path === "/registration") return renderRegistrationPage();
     if (path === "/disclaimer") return renderDisclaimerPage();
     if (path === "/code") return renderCodePage();
     if (path === "/home") return renderHomePage();
-    if (path === "/cart") return renderCartPage();
+    if (path === "/cart") {
+        if (!localStorage.getItem("userToken")) {
+            const goLogin = confirm("Only authorized users can view the cart. Do you want to log in?");
+            if (goLogin) {
+                return navigate("/login");
+            }
+            return;
+        }
+        return renderCartPage();
+    }
     if (path.startsWith("/catalog")) return renderCatalogPage();
 
     if (app) app.innerHTML = "<h1>404 — Страница не найдена</h1>";
@@ -884,3 +1369,9 @@ if (document.readyState === "complete") {
 } else {
     window.addEventListener("load", router);
 }
+
+
+
+
+
+//

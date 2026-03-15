@@ -1011,7 +1011,7 @@ padding: 10px 150px;
 }
 .filter-label { 
     font-size: 20px;
-    font-weight: 700; /* жирный текст для from/to */ 
+    font-weight: 700;
 }
 .filter-input {
   padding: 8px 12px;
@@ -1050,8 +1050,11 @@ padding: 10px 150px;
 
 .catalog-grid {
   max-width: 1200px;
-  margin: 0 auto; 
+  margin: 0 auto;
   padding: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .row {
@@ -1076,7 +1079,6 @@ padding: 10px 150px;
 
 /* Карточки */
 .product-card {
-  flex: 1;
   aspect-ratio: 3 / 4;
   display: flex;
   flex-direction: column;
@@ -1090,18 +1092,21 @@ padding: 10px 150px;
 }
 
 .product-card.large {
-  height: 600px;
+  height: 800px;
+  flex: 0 0 calc(66.666% - 20px);
+  max-width: calc(50% - 20px);
 }
 
 .product-card img {
-  width: 100%;
   height: 70%;
   object-fit: cover;
 }
 
 .product-card .info {
   padding: 10px;
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .product-card .info h3 {
@@ -1113,9 +1118,14 @@ padding: 10px 150px;
 .product-price {
   font-size: 30px;
   font-weight: 500;
-  margin: 0 0 4px 0;
+  margin: 0;
 }
 
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .cart-btn {
   background: black;
   color: white;
@@ -1124,7 +1134,36 @@ padding: 10px 150px;
   width: 40px;
   height: 40px;
   cursor: pointer;
-  margin-top: 0;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.cart-btn:hover {
+  transform: scale(1.2); /* увеличение при наведении */
+  background: #333;
+}
+
+.cart-btn:active {
+  transform: scale(0.95); /* лёгкий эффект нажатия */
+}
+.notify {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 300;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 200;
+}
+
+.notify.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Зеркалирование */
@@ -1140,44 +1179,25 @@ padding: 10px 150px;
 
 /* 📱 Адаптивность */
 @media (max-width: 1024px) {
-  .catalog-grid {
-    padding: 20px;
-  }
-  .row {
-    gap: 15px;
-  }
   .product-card.small {
-    height: 400px;
-    width: 180px;
+    flex: 0 0 calc(50% - 20px);
+    max-width: calc(50% - 20px);
   }
   .product-card.large {
-    height: 500px;
-  }
-  .product-card .info h3,
-  .product-price {
-    font-size: 24px;
+    flex: 0 0 100%;
+    max-width: 100%;
   }
 }
 
 @media (max-width: 768px) {
-  .row {
-    flex-direction: column;
-  }
-  .half {
-    flex-direction: column;
-  }
   .product-card.small,
   .product-card.large {
-    width: 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
     height: auto;
-  }
-  .product-card img {
-    height: auto;
-  }
-  .product-card .info {
-    text-align: center;
   }
 }
+
 
 @media (max-width: 480px) {
   .catalog-grid {
@@ -1196,4 +1216,215 @@ padding: 10px 150px;
     width: 32px;
     height: 32px;
   }
+}
+
+
+
+
+/* КОРЗИНА*/
+.cart-container {
+  margin-top: 40px;
+  display: flex;
+  gap: 20px;
+  padding: 40px;
+}
+
+/* товары слева — больше */
+.cart-items {
+  flex: 1.5;
+  background: #eee;
+  padding: 20px 40px;
+  margin-left: 100px;  
+}
+.cart-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: black;
+  margin-bottom: 8px;
+}
+
+.cart-subrow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-label {
+  font-size: 14px;
+  color: gray;
+}
+
+.cart-count {
+  font-size: 14px;
+  color: black;
+}
+
+.cart-link {
+  font-size: 14px;
+  color: gray;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cart-link:hover {
+  text-decoration: underline;
+}
+
+.cart-remove {
+  margin-left: auto;
+}
+
+.cart-divider {
+  height: 1px;
+  background: gray;
+  margin: 12px 0;
+}
+.cart-icon {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: black;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+
+
+/* сумма справа — меньше */
+.cart-summary {
+  width: 320px;              /* фиксированная ширина */
+  background: #eee;
+  padding: 30px;
+  margin-right: 100px; 
+  margin-left: 50px;       /* больше расстояние от края */
+  position: sticky;
+  top: 100px;
+  height: 200px;              /* блок короче */
+}
+
+.summary-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: black;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: gray;
+}
+
+.summary-count {
+  font-size: 14px;
+  color: gray;
+}
+
+.summary-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: black;
+}
+
+.order-btn {
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  display: block;
+  margin: 30px auto 0;
+}
+
+.order-btn:hover {
+  transform: scale(1.1);
+}
+
+.cart-item {
+  display: flex;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.cart-left {
+  flex: 0 0 160px;
+}
+
+.cart-img {
+  width: 100%;
+  aspect-ratio: 3.5 / 3.8;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.cart-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-title {
+  font-size: 25px;
+  font-weight: 600;
+  color: black;
+}
+
+.cart-price {
+  font-size: 30px;
+  font-weight: 700;
+  color: black;
+}
+
+.cart-category {
+  font-size: 14px;
+  color: gray;
+  margin: 6px 0;
+}
+
+.cart-bottom {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.minus-btn, .plus-btn {
+  background: #ddd;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.count {
+  font-size: 16px;
+  font-weight: 600;
 }
