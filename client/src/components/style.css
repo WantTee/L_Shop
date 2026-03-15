@@ -1,0 +1,1430 @@
+/* Базовые стили для html и body */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;              /* вместо фиксированного 100vh */
+    font-family: "Abhaya Libre", serif;
+    background: #ffffff;
+    overflow-x: hidden;            /* запрещаем горизонтальный скролл */
+    overflow-y: auto;              /* разрешаем вертикальный скролл */
+}
+h1, h2, h3, h4, h5, h6, p, a, button, span { 
+    font-family: "Abhaya Libre", serif; 
+}
+.hero-content h1,
+.hero-content p,
+.disclaimer-container h1,
+.disclaimer-container p,
+.category p,
+.footer span {
+    font-family: "Abhaya Libre", serif;
+}
+input, textarea, select, button {
+    font-family: "Abhaya Libre", serif !important;
+}
+
+/* Общая подсветка текста при выделении */
+::selection {
+    background: black;
+    color: white; 
+}
+.black-text::selection {
+    background: black;
+    color: white;
+}
+
+/* Плавное появление страниц */
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+.fade-out {
+    animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+/* Общий стиль для скроллбара */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* Дорожка */
+::-webkit-scrollbar-track {
+    background: transparent !important; /* принудительно прозрачная */
+}
+
+/* Ползунок */
+::-webkit-scrollbar-thumb {
+    background-color: black;
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: #333;
+}
+
+.no-scroll {
+  overflow: hidden !important;
+  height: 100%; /* фиксируем */
+}
+
+/* Кнопка PRESIDENT на стартовой */
+.president-btn {
+    font-family: "Abhaya Libre", serif;
+    font-size: 64px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.5s ease;
+    letter-spacing: 2px;
+    opacity: 1;
+    position: absolute;
+    z-index: 20;
+
+    /* Центрирование */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.hidden { 
+    opacity: 0; 
+    pointer-events: none; 
+}
+.president-btn:hover { transform: translate(-50%, calc(-50% - 5px)); /* остаётся по центру, но чуть выше */ }
+
+/* Двухколоночный макет для форм */
+.split-layout {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+.left-panel {
+    width: 40%;
+    background-color: #E8E8E8;
+    position: relative;
+}
+.right-panel {
+    width: 60%;
+    background-color: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Огромный вертикальный текст PRESIDENT */
+.vertical-text {
+    font-family: "Abhaya Libre", serif;
+    font-size: 17vh;
+    font-weight: 800;
+    color: white;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: 2vh;
+    text-transform: uppercase;
+    white-space: nowrap;
+    line-height: 1;
+    position: absolute;
+    right: -47px;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+/* Контейнер формы */
+.login-form-container {
+    width: 70%;
+    max-width: 500px;
+}
+.login-form-container h1 {
+    font-size: 48px;
+    margin-bottom: 40px;
+    font-weight: 600;
+}
+
+/* Стили для формы */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+.form-group input {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-bottom: 2px solid #000;
+    font-size: 18px;
+    outline: none;
+    background: transparent;
+}
+.form-group input:focus {
+    border-bottom-color: #000;
+}
+.submit-btn {
+    background: #000;
+    color: #fff;
+    padding: 15px;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 200px;
+    margin: 20px auto 0;
+    border-radius: 40px;
+    font-weight: 600;
+    display: block;
+}
+.submit-btn:hover {
+    background: #333;
+}
+
+/* Ссылки */
+.auth-links {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.link-incognito {
+    color: #A39696;
+    text-decoration: none;
+    font-size: 16px;
+    text-align: center;
+}
+.link-signin {
+    color: #000;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: right;
+}
+.link-incognito:hover, .link-signin:hover {
+    opacity: 0.6;
+}
+
+/* Лоадер */
+.loader {
+    position: fixed;
+    inset: 0;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    transition: opacity 0.5s ease;
+}
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #000;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+#loader { transition: opacity 0.5s ease; }
+#loader.hidden { display: none; }
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Код */
+.login-form-container h1.code-title {
+    text-align: center;
+    font-size: 50px;
+    margin: 0 auto;
+    font-weight: 600;
+}
+.code-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+.code-box {
+    width: 50px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    border: 2px solid #000;
+    border-radius: 20px;
+    font-weight: 600;
+}
+.code-box:nth-child(3) {
+    margin-right: 30px;
+}
+
+/* Модальное окно */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+.modal.hidden { display: none; }
+.modal-content {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 300px;
+    width: 100%;
+}
+.modal-content p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+#modal-buttons .submit-btn {
+    width: 60%;
+    margin-top: 8px;
+}
+.code-email {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    color: #000;
+}
+
+/* Главная страница */
+.home-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.disclaimer-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #fff;
+    color: #000;
+}
+
+.disclaimer-container {
+    max-width: 600px;
+    text-align: center;
+    padding: 40px;
+}
+
+.disclaimer-container h1 {
+    font-size: 48px;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.disclaimer-container p {
+    font-size: 20px;
+    margin-bottom: 40px;
+    line-height: 1.5;
+}
+
+.disclaimer-btn {
+    background: black;
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 40px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+.disclaimer-btn:hover {
+    background: white;
+    color: black;
+    border: 2px solid black;
+}
+
+/* Главный экран */
+.hero {
+    background: url('/hero.jpg') no-repeat center top;
+    background-size: contain;   /* картинка полностью видна */
+    background-repeat: no-repeat;
+    background-position: top center;
+    width: 100%;
+    min-height: 100vh;          /* секция занимает экран */
+    
+}
+
+/* Хедер поверх картинки */
+/* Хедер */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+    background: transparent;
+    color: white;
+    z-index: 1000;
+    border-bottom: 2px solid white; /* белая линия под категориями */
+    transition: background 0.3s, color 0.3s;
+}
+.header.scrolled {
+  background: white;
+  color: black;
+  border-bottom: 2px solid black;
+}
+
+.header.scrolled .header-nav a {
+  color: black !important;;
+}
+
+.header.scrolled .logo {
+  content: url('/logo-black.png'); /* меняем логотип */
+}
+
+.header.scrolled .icon {
+  filter: invert(1); /* иконки становятся чёрными */
+}
+
+/* Логотип по центру */
+.header-logo {
+    margin-bottom: 10px;
+}
+.header-logo img {
+    height: 50px;
+}
+
+/* Категории под логотипом */
+.header-nav {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-bottom: 10px;
+}
+.header-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+/* Иконки справа */
+.header-icons {
+    position: absolute;
+    top: 35%;
+    transform: translateY(-50%);
+    right: 20px;
+    display: flex;
+    gap: 20px;
+}
+.icon {
+    height: 32px;
+    cursor: pointer;
+    transition: transform 0.3s, filter 0.3s;
+}
+.icon:hover {
+     transform: scale(1.2) rotate(-5deg); /* увеличиваем и слегка поворачиваем */
+      filter: brightness(1.5); /* делаем чуть ярче */ 
+}
+/* Эффект при наведении на весь хедер */
+.header:hover {
+    background: white;
+    color: black;
+}
+.header:hover .header-nav a {
+    color: black;
+}
+.header:hover .logo {
+    content: url('/logo-black.png'); /* меняем логотип */
+}
+.header:hover .icon {
+    filter: invert(1); /* белые → чёрные */
+}
+/* Категории */
+.header-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.header-nav a:hover {              /* меняем цвет при наведении */
+    transform: translateY(-3px); /* лёгкий подъём */
+}
+
+
+
+.hero-content {
+    position: absolute;
+    top: 20%;                  /* выше по экрану */
+    left: 300px;                /* отступ слева */
+    text-align: left;
+    color: white;
+    max-width: 40%;            /* ограничиваем ширину блока */
+}
+
+/* ФИО */
+.hero-content h1 {
+    font-size: 80px;           /* крупный размер */
+    font-weight: 200;
+    line-height: 0.7;
+    margin: 0 0 40px 0;        /* большое расстояние вниз */
+}
+
+/* Краткое описание */
+.hero-content p {
+    font-size: 30px;
+    font-weight: 300;
+    margin: 0 0 5px 0;        /* меньшее расстояние вниз */
+}
+
+/* Кнопка */
+.hero-btn {
+    background: black;         /* чёрная кнопка */
+    border: none;
+    color: white;
+    padding: 12px 28px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    transition: background 0.3s, color 0.3s;
+}
+.hero-btn:hover {
+    background: white;
+    color: black;
+}
+
+
+/* Категории */
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 40px;         /* расстояние между карточками */
+    padding: 40px 0;
+}
+
+.category {
+    text-align: center;
+    text-decoration: none; /* убираем подчёркивание */
+    color: inherit;        /* наследуем цвет */
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.category img {
+    width: 350px;          /* чуть меньше, чтобы ближе друг к другу */
+    height: auto;
+    border-radius: 0;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.category:hover {
+    transform: scale(1.05); /* лёгкое увеличение при наведении */
+    opacity: 0.9;
+}
+
+
+/* Футер */
+.footer {
+    background: transparent;
+    color: white;
+    padding: 20px;
+    transition: background 0.3s, color 0.3s;
+    display: flex;
+    align-items: center;
+}
+.footer-logo img {
+    height: 30px;
+    margin-right: 10px;
+}
+
+.footer:hover {
+    background: white;
+    color: black;
+}
+
+/* Нижняя чёрная полоса */
+.footer-bar {
+    background: black;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-bar .logo-small {
+    height: 20px;
+}
+/* Модалка выхода */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+.modal-content {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 300px;
+  width: 100%;
+}
+.modal-content p {
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Модалка поиска */
+.search-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  z-index: 200;
+  overflow: hidden;
+}
+.search-modal.hidden {
+  display: none;
+}
+.search-modal-content {
+  background: #fff;
+  width: 50%;
+  height: 100%;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  display: flex;
+  flex-direction: column;
+}
+.search-modal.open .search-modal-content {
+  transform: translateX(0);
+
+  opacity: 1;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.search-modal-content {
+  background: #fff;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Открытие */
+.search-modal.open .search-modal-content {
+  animation: slideIn 0.4s ease forwards;
+}
+
+/* Закрытие */
+.search-modal.closing .search-modal-content {
+  animation: slideOut 0.4s ease forwards;
+}
+
+
+
+/* Хедер модалки */
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 56px 20px;
+  flex-shrink: 0;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.close-icon {
+   width: 40px; height: 40px; cursor: pointer;
+}
+
+.close-text {
+  font-size: 27px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.search-header-icons { display: flex; gap: 15px; }
+.header-icon { width: 20px; height: 20px; cursor: pointer; }
+.search-header-icons .header-icon {
+  height: 32px;   /* как в главном хедере */
+  width: auto;    /* пусть ширина подстраивается */
+  cursor: pointer;
+}
+.header-divider {
+  height: 0.9px;
+  background: black;
+  margin: 0 56px;
+  flex-shrink: 0; /* фиксируем */
+}
+
+/* Строка поиска */
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin: 0 90px;
+  border-bottom: 2px solid #000;
+  padding: 60px 0px 0px;
+}
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 25px;
+  margin-left: 8px;
+  padding-bottom: 6px;
+}
+.search-bar .search-icon {
+  width: 40px;
+  height: 40px;
+}
+/* Иконки справа */
+.header-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.header-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+
+/* Блок с фото */
+.search-suggestions {
+  margin-top: 30%; /* всегда внизу */
+  padding: 80px;
+}
+.suggestions-title {
+  font-size: 25px;
+  font-weight: 900px;
+  margin-bottom: 40px;
+  text-align: left;
+}
+.suggestions-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.suggestion {
+  flex: 1;
+  text-align: center;
+}
+.suggestion img {
+  width: 100%;
+  aspect-ratio: 3.7 /4.3;   /* квадрат */
+  object-fit: cover;
+}
+.suggestion p {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Надпись Go back */
+.search-footer {
+  text-align: right;
+  padding: 100px 20px;
+}
+.search-footer .go-back {
+  font-size: 25px;
+  font-weight: 1000;
+  color: black;
+  text-decoration: none;
+}
+/*---------------каталог-----------*/
+.catalog-page {
+  padding: 40px;
+}
+
+.catalog-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  color: black;
+  border-bottom: 1px solid black; /* тонкая линия снизу */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 5px;
+  padding-bottom: 20px;
+  position: relative;
+  z-index: 1000;
+}
+
+/* Верхняя часть */
+.catalog-header-top {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.catalog-header-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.catalog-header-logo .logo {
+  height: 60px;
+}
+
+/* Иконки справа */
+.catalog-header-icons {
+  position: absolute;
+  right: 50px;
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+.catalog-header-icons .icon {
+  height: 32px;
+  cursor: pointer;
+}
+
+/* Навигация */
+.catalog-header-nav {
+  display: flex;
+  gap: 50px;
+}
+.catalog-header-nav a {
+  color: black;
+  text-decoration: none;
+  font-weight: 600;
+}
+.catalog-header-nav a:hover {
+  color: black;
+}
+.header-nav-2 {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-bottom: 10px;
+    color: black;
+}
+/* Категории */
+.header-nav-2 a {
+  color: black;
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.header-nav-2 a::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: black;
+  transition: width 0.3s ease;
+}
+
+.header-nav-2 a:hover {
+  color: black; /* остаётся чёрным */
+  transform: scale(1.05); /* лёгкое увеличение */
+}
+
+
+
+.filter-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  z-index: 200;
+  overflow: hidden;
+}
+.filter-modal.hidden {
+  display: none;
+}
+.filter-modal-content {
+  background: #fff;
+  width: 50%;
+  height: 100%;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  display: flex;
+  flex-direction: column;
+}
+.filter-modal.open .filter-modal-content {
+  transform: translateX(0);
+  opacity: 1;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+.filter-modal-content {
+  background: #fff;
+  width: 40%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+/* Открытие */
+.filter-modal.open .filter-modal-content {
+  animation: slideIn 0.4s ease forwards;
+}
+/* Закрытие */
+.filter-modal.closing .filter-modal-content {
+  animation: slideOut 0.4s ease forwards;
+}
+
+/* Хедер модалки */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 56px 20px;
+  flex-shrink: 0;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.close-icon {
+   width: 40px; height: 40px; cursor: pointer;
+}
+.close-text {
+  font-size: 27px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.filter-header-icons { display: flex; gap: 15px; }
+.header-icon { width: 20px; height: 20px; cursor: pointer; }
+.filter-header-icons .header-icon {
+  height: 32px;   /* как в главном хедере */
+  width: auto;    /* пусть ширина подстраивается */
+  cursor: pointer;
+}
+.header-divider {
+  height: 0.9px;
+  background: black;
+  margin: 0 56px;
+  flex-shrink: 0; /* фиксируем */
+}
+
+/* Надпись Go back */
+.filter-footer {
+  text-align: right;
+  padding: 100px 20px;
+}
+.filter-footer .go-back {
+  font-size: 25px;
+  font-weight: 1000;
+  color: black;
+  text-decoration: none;
+}
+.filter-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;  /* по центру горизонтально */
+  justify-content: flex-start; /* по центру вертикально */
+  flex: 1; /* занимает всё пространство модалки */
+  gap: 40px; /* расстояние между блоками */
+  padding: 40px 56px;
+}
+
+.filter-section {
+  text-align: left; /* заголовки и содержимое по центру */
+}
+
+.filter-section h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.price-inputs {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+padding: 10px 150px;
+}
+.filter-label { 
+    font-size: 20px;
+    font-weight: 700;
+}
+.filter-input {
+  padding: 8px 12px;
+  border: 1px solid black;
+  border-radius: 20px;
+  background: white;
+  font-size: 16px;
+  width: 120px;
+}
+
+.filter-options {
+  display: flex;
+  gap: 15px;
+  padding: 10px 150px;
+}
+
+.filter-btn {
+  padding: 10px 20px;
+  border: none; /* без чёрной рамки */
+  border-radius: 20px;
+  background: white;
+  color: black;
+  font-size: 17px;
+  cursor: pointer;
+  min-width: 120px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+  background: black;
+  color: white;
+}
+
+
+
+.catalog-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.row {
+  display: flex;
+  gap: 20px;
+}
+
+.row.reverse {
+  flex-direction: row-reverse;
+}
+
+.half {
+  flex: 1; /* каждая половина занимает 50% ширины */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.small-cards {
+  flex-direction: row; /* маленькие карточки идут в ширину */
+}
+
+/* Карточки */
+.product-card {
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  overflow: hidden;
+}
+
+.product-card.small {
+  height: 500px;
+  width: 200px;
+}
+
+.product-card.large {
+  height: 800px;
+  flex: 0 0 calc(66.666% - 20px);
+  max-width: calc(50% - 20px);
+}
+
+.product-card img {
+  height: 70%;
+  object-fit: cover;
+}
+
+.product-card .info {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-card .info h3 {
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.product-price {
+  font-size: 30px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cart-btn {
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.cart-btn:hover {
+  transform: scale(1.2); /* увеличение при наведении */
+  background: #333;
+}
+
+.cart-btn:active {
+  transform: scale(0.95); /* лёгкий эффект нажатия */
+}
+.notify {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 300;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 200;
+}
+
+.notify.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Зеркалирование */
+.row.reverse .half:first-child {
+  order: 2;
+}
+.row.reverse .half:last-child {
+  order: 1;
+}
+.row.reverse .product-card .info {
+  text-align: left;
+}
+
+/* 📱 Адаптивность */
+@media (max-width: 1024px) {
+  .product-card.small {
+    flex: 0 0 calc(50% - 20px);
+    max-width: calc(50% - 20px);
+  }
+  .product-card.large {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-card.small,
+  .product-card.large {
+    flex: 0 0 100%;
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .catalog-grid {
+    padding: 10px;
+  }
+  .row {
+    gap: 10px;
+  }
+  .product-card .info h3 {
+    font-size: 20px;
+  }
+  .product-price {
+    font-size: 18px;
+  }
+  .cart-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+
+
+
+/* КОРЗИНА*/
+.cart-container {
+  margin-top: 40px;
+  display: flex;
+  gap: 20px;
+  padding: 40px;
+}
+
+/* товары слева — больше */
+.cart-items {
+  flex: 1.5;
+  background: #eee;
+  padding: 20px 40px;
+  margin-left: 100px;  
+}
+.cart-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: black;
+  margin-bottom: 8px;
+}
+
+.cart-subrow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-label {
+  font-size: 14px;
+  color: gray;
+}
+
+.cart-count {
+  font-size: 14px;
+  color: black;
+}
+
+.cart-link {
+  font-size: 14px;
+  color: gray;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cart-link:hover {
+  text-decoration: underline;
+}
+
+.cart-remove {
+  margin-left: auto;
+}
+
+.cart-divider {
+  height: 1px;
+  background: gray;
+  margin: 12px 0;
+}
+.cart-icon {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: black;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+
+
+/* сумма справа — меньше */
+.cart-summary {
+  width: 320px;              /* фиксированная ширина */
+  background: #eee;
+  padding: 30px;
+  margin-right: 100px; 
+  margin-left: 50px;       /* больше расстояние от края */
+  position: sticky;
+  top: 100px;
+  height: 200px;              /* блок короче */
+}
+
+.summary-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: black;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: gray;
+}
+
+.summary-count {
+  font-size: 14px;
+  color: gray;
+}
+
+.summary-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: black;
+}
+
+.order-btn {
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  display: block;
+  margin: 30px auto 0;
+}
+
+.order-btn:hover {
+  transform: scale(1.1);
+}
+
+.cart-item {
+  display: flex;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.cart-left {
+  flex: 0 0 160px;
+}
+
+.cart-img {
+  width: 100%;
+  aspect-ratio: 3.5 / 3.8;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.cart-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-title {
+  font-size: 25px;
+  font-weight: 600;
+  color: black;
+}
+
+.cart-price {
+  font-size: 30px;
+  font-weight: 700;
+  color: black;
+}
+
+.cart-category {
+  font-size: 14px;
+  color: gray;
+  margin: 6px 0;
+}
+
+.cart-bottom {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.minus-btn, .plus-btn {
+  background: #ddd;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.count {
+  font-size: 16px;
+  font-weight: 600;
+}
